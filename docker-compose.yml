@@ -1,0 +1,146 @@
+version: '3'
+
+services:
+
+  workspace:
+    build: workspace/
+    volumes:
+      - ${APP_DIR}
+    networks:
+      - laravue
+    depends_on:
+      - mysql
+
+#### personal study
+  php-fpm:
+    build: ./php-fpm
+    volumes:
+      - ${APP_DIR}
+    expose:
+      - "9000"
+    networks:
+      laravue:
+        aliases:
+          - php-fpm
+
+  laravue:
+    build:
+      context: ./nginx
+      args:
+        - PHP_UPSTREAM=php-fpm
+    ports:
+      - "8081:80"
+      - "445:443"
+    volumes:
+      - ./logs/nginx/:/var/log/nginxp
+      - ./nginx/sites/:/etc/nginx/sites-available
+      - ${APP_DIR}
+    depends_on:
+      - php-fpm
+      - db
+      - phpmyadmin
+      - redis
+    networks:
+      - laravue
+
+  db:
+    image: mysql:5.7
+    environment:
+      - MYSQL_DATABASE=homestead
+      - MYSQL_USER=homestead
+      - MYSQL_PASSWORD=secret
+      - MYSQL_ROOT_PASSWORD=root
+    volumes:
+      - mysql2:/var/lib/mysql
+    networks:
+      laravue:
+        aliases:
+          - db
+
+  mysql:
+    image: mysql:5.7
+    environment:
+      - MYSQL_DATABASE=homestead
+      - MYSQL_USER=homestead
+      - MYSQL_PASSWORD=secret
+      - MYSQL_ROOT_PASSWORD=root
+    volumes:
+      - test2:/var/lib/mysql
+    networks:
+      laravue:
+        aliases:
+          - mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      - PMA_HOST=db
+      - PMA_USER=root
+      - PMA_PASSWORD=root
+    ports:
+      - "3334:80"
+    networks:
+      - laravue
+
+  schemespy:
+    image: schemaspy/schemaspy:snapshot
+    volumes:
+      - ./log/scheme:/output
+    command: '-t mysql -host db:3306 -db homestead -u root -p root -connprops useSSL\\=false -s homestead'
+    networks:
+      - laravue
+
+  # logger:
+  #   build: ./logger
+  #   volumes:
+  #     - ./logs/fluentd:/fluentd/log
+  #     - ./logger/:/fluentd/etc/
+  #   networks:
+  #     - laravue
+  #   environment:
+  #     - ENDPOINT=${ENDPOINT}
+  #     - ACCESS_KEY=${ACCESS_KEY}
+  #     - SECRET_KEY=${SECRET_KEY}
+      
+
+
+#### other system utility
+  localstack:
+    image: localstack/localstack
+    ports:
+      - "4572:4572"
+    networks:
+      - laravue
+
+  nodep:
+    build: ./node
+    volumes:
+      - ${APP_DIR}
+
+  aws-cli:
+    image: mesosphere/aws-cli
+    environment:
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - AWS_DEFAULT_REGION=ap-north-1
+    links:
+      - localstack
+    command: '--endpoint-url=http://localstack:4572 s3 mb s3://localload/'
+
+  redis:
+    image: redis:alpine
+    networks:
+      - laravue
+
+volumes:
+    mysql:
+        driver: "local"
+    mysql2:
+        driver: "local"
+    test:
+        driver: "local"
+    test2:
+        driver: "local"
+
+networks:
+  laravue:
