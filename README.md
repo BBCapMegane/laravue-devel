@@ -25,5 +25,16 @@ docker-compose run --rm workspace
 /var/www # php artisan db:seed
 ```
 
+## vue
+
+コンパイル
+```
+npm run dev
+```
+
+ホットデプロイ
+```
+npm run watch
+```
 
 

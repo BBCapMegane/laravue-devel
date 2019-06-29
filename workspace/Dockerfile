@@ -6,11 +6,11 @@ RUN apk add --update --no-cache --virtual .build_deps unzip bzip2-dev zlib-dev g
     docker-php-ext-install mysqli pdo_mysql bz2 gd zip gmp && \
     pecl install xdebug && docker-php-ext-enable xdebug && \
     apk del .build_deps && \
+    apk add nodejs nodejs-npm && \
     freshclam
 
 RUN curl -sS https://getcomposer.org/installer | php; mv composer.phar /usr/local/bin/composer ; mkdir /var/dev
-
-RUN curl -L -o /usr/bin/phpmd http://static.phpmd.org/php/latest/phpmd.phar && chmod +x /usr/bin/phpmd
+# RUN curl -L -o /usr/bin/phpmd http://static.phpmd.org/php/latest/phpmd.phar && chmod +x /usr/bin/phpmd
 # RUN mkdir /var/www
 
 WORKDIR /var/www
