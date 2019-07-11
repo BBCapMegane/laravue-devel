@@ -8,7 +8,6 @@ cp .env.example .env
 ```
 docker-compose up -d laravue
 ```
-これでRFP管理画面及び個人学習支援パックの２つが起動します
 
 ## workspace
 
