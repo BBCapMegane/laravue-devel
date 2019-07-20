@@ -9,9 +9,8 @@ services:
     networks:
       - laravue
     depends_on:
-      - mysql
+      - db
 
-#### personal study
   php-fpm:
     build: ./php-fpm
     volumes:
@@ -57,19 +56,19 @@ services:
         aliases:
           - db
 
-  mysql:
-    image: mysql:5.7
-    environment:
-      - MYSQL_DATABASE=homestead
-      - MYSQL_USER=homestead
-      - MYSQL_PASSWORD=secret
-      - MYSQL_ROOT_PASSWORD=root
-    volumes:
-      - test2:/var/lib/mysql
-    networks:
-      laravue:
-        aliases:
-          - mysql
+  # mysql:
+  #   image: mysql:5.7
+  #   environment:
+  #     - MYSQL_DATABASE=homestead
+  #     - MYSQL_USER=homestead
+  #     - MYSQL_PASSWORD=secret
+  #     - MYSQL_ROOT_PASSWORD=root
+  #   volumes:
+  #     - test2:/var/lib/mysql
+  #   networks:
+  #     laravue:
+  #       aliases:
+  #         - mysql
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
@@ -116,16 +115,6 @@ services:
     build: ./node
     volumes:
       - ${APP_DIR}
-
-  aws-cli:
-    image: mesosphere/aws-cli
-    environment:
-      - AWS_ACCESS_KEY_ID=test
-      - AWS_SECRET_ACCESS_KEY=test
-      - AWS_DEFAULT_REGION=ap-north-1
-    links:
-      - localstack
-    command: '--endpoint-url=http://localstack:4572 s3 mb s3://localload/'
 
   redis:
     image: redis:alpine
